@@ -1,0 +1,17 @@
+{
+  "name": "calendar_service",
+  "version": "1.0.0",
+  "description": "A bot to rule them all, or at least to give the classroom",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "RIL17",
+  "license": "ISC",
+  "dependencies": {
+    "discord.io": "^2.5.3",
+    "discord.js": "^11.5.1",
+    "winston": "^3.2.1"
+  }
+}
