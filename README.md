@@ -17,7 +17,7 @@ Try to use the discord embed system with these default options
 let embed_result = new Discord.RichEmbed()
                     .setColor('#429127')
                     .setAuthor("Réponse automatique")
-					.setTitle("Planning de le semaine")
+		    .setTitle("Planning de le semaine")
 ```
 
 and to perform the formatting, because discord use markdown you can integrate it in the embed like
