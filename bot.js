@@ -29,7 +29,8 @@ client.on('message', msg => {
             .then(json => {
 
                 let date = new Date();
-                date = new Date(date.getFullYear(),date.getMonth()+1,date.getDate())
+                //date_time_yyyymmdd will be used to compare the days in timestamp format
+                let date_time_yyyymmdd = new Date(date.getFullYear(),date.getMonth()+1,date.getDate())
                 let i = date.getDay();
                 let day_room = new Object();
                 let date_current_day;
@@ -47,16 +48,24 @@ client.on('message', msg => {
                         .getTime());
                 }
                 console.log(planning_dates);
-                console.log(date)
-                console.log(date.getTime());
-                console.log(planning_dates.includes(date.getTime()));
+                console.log(date_time_yyyymmdd);
+                console.log(date_time_yyyymmdd.getTime());
+                console.log(planning_dates.includes(date_time_yyyymmdd.getTime()));
 
                 //If the command is used without the week, remind when the next date is
-                if(planning_dates.includes(date.getTime())){
+                if(!planning_dates.includes(date_time_yyyymmdd.getTime())){
                     let date_next = new Date(json[0].start.split('T')[0]);
-                    let diffDays = Math.ceil(Math.abs(date_next - date) / (1000 * 60 * 60 * 24));
-                    day_room = "L'alternance du cesi revient"+(diffDays<=1 ? " demain":" le "+date_next.toLocaleDateString()+" plus que "+ diffDays+
-                        " jours");
+                    let diffDays = Math.ceil((date_next - date) / (1000 * 60 * 60 * 24));
+
+                    day_room = "L'alternance du cesi revient";
+                    if(diffDays==1){
+                        day_room += " demain";
+                    }else if(diffDays > 1){
+                        day_room +=" le "+date_next.toLocaleDateString()+" plus que "+ diffDays+ " jours";
+                    }else if(diffDays < 0){
+                        day_room = "L'alternance est passé depuis "+ Math.abs(diffDays) +" jour"+(diffDays!=-1 ? "":"s");
+                    }
+
                     embed_result.setTitle(day_room);
 
                 }else {
