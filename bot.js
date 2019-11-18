@@ -18,25 +18,43 @@ client.on('message', msg => {
     if (msg.content.startsWith("!")) {
         if(msg.content.substr(1) == "ping")
             msg.reply('pong');
+        if(msg.content.substr(1) == "sale")
+            msg.reply('C\'est toi qui est sale !');
         if(msg.content.substr(1)== "salle"){
 
+            //Link to the API here, temporary attacking my VPS with manually downloaded
+            //This is the part where the CESI should bring his collaboration
             fetch('http://51.254.133.142/sample/sample.json')
             .then(res => res.json())
             .then(json => {
 
-                let date = new Date(2019,10,18);
-                let i = 0;//date.getDay();
+                let date = new Date();
+                date = new Date(date.getFullYear(),date.getMonth()+1,date.getDate())
+                let i = date.getDay();
                 let day_room = new Object();
                 let date_current_day;
+                let planning_dates = [];
                 let embed_result = new Discord.RichEmbed()
                     .setColor('#429127')
-                    .setAuthor("Réponse automatique")
+                    .setAuthor("Réponse automatique");
+
+                for(itr in json){
+                    planning_dates.push(new Date(
+                        json[itr].start.split('T')[0].split('-')[0],
+                        json[itr].start.split('T')[0].split('-')[1],
+                        json[itr].start.split('T')[0].split('-')[2]
+                    )
+                        .getTime());
+                }
+                console.log(planning_dates);
+                console.log(date)
+                console.log(date.getTime());
+                console.log(planning_dates.includes(date.getTime()));
 
                 //If the command is used without the week, remind when the next date is
-                if(i == 0 || i > 5){
+                if(planning_dates.includes(date.getTime())){
                     let date_next = new Date(json[0].start.split('T')[0]);
                     let diffDays = Math.ceil(Math.abs(date_next - date) / (1000 * 60 * 60 * 24));
-                    console.log(date,date_next,diffDays);
                     day_room = "L'alternance du cesi revient"+(diffDays<=1 ? " demain":" le "+date_next.toLocaleDateString()+" plus que "+ diffDays+
                         " jours");
                     embed_result.setTitle(day_room);
@@ -47,8 +65,10 @@ client.on('message', msg => {
                             //If it is the first iteration
                             if (date_current_day != null) {
                                 //Put the duplicates away
-                                day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
-                                (i <= 6) ? i = 0 : i++;
+                                if(i+1>0 && i+1<6 ){
+                                    day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
+                                    i++;
+                                }
                             }
                             var rooms_of_the_day = [];
                             date_current_day = json[key].start.split('T')[0];
@@ -61,11 +81,12 @@ client.on('message', msg => {
 
                         //If it is the last iteration
                         if (key == json.length - 1) {
-                            day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
+                            if(i>0 && i<6)
+                                day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
                         }
                     }
 
-                    let title_embed = " Jour      | Salle      |";
+                    let title_embed = " Jour         | Salle            |";
                     let str_title = "-";
                     let description_embed = "";
                     let separator_index;
