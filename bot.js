@@ -47,10 +47,6 @@ client.on('message', msg => {
                     )
                         .getTime());
                 }
-                console.log(planning_dates);
-                console.log(date_time_yyyymmdd);
-                console.log(date_time_yyyymmdd.getTime());
-                console.log(planning_dates.includes(date_time_yyyymmdd.getTime()));
 
                 //If the command is used without the week, remind when the next date is
                 if(!planning_dates.includes(date_time_yyyymmdd.getTime())){
