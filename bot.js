@@ -19,6 +19,7 @@ client.on('message', msg => {
     args.splice(0, 1);
 
     if (command.startsWith("!")) {
+        console.log(msg.author.username+" : "+msg.content);
         if(command.substr(1) == "ping")
             msg.reply('pong');
         if(command.substr(1) == "sale")
