@@ -28,7 +28,6 @@ client.on('message', msg => {
         }
         if(command.substr(1)== "salle")
             room_list(msg);
-
     }
 
 });
@@ -172,28 +171,32 @@ function room_list(msg){
 
             }else {
                 for (let key in json) {
-                    if (json[key].start.split('T')[0] != date_current_day) {
-                        //If it is the first iteration
-                        if (date_current_day != null) {
-                            //Put the duplicates away
-                            if(i+1>0 && i+1<6 ){
+                    if(new Date(json[key].start.split('T')[0]).getTime() >= date.getTime() ){
+                        if (json[key].start.split('T')[0] != date_current_day) {
+                            //If it is the first iteration
+                            if (date_current_day != null) {
+                                //Put the duplicates away
+                                if(i+1>0 && i+1<6 ){
+                                    day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
+                                    i++;
+                                }
+                            }
+                            var rooms_of_the_day = [];
+                            date_current_day = json[key].start.split('T')[0];
+                        }
+
+                        if (i <= 5 || new Date(date_current_day).getTime() >= date.getTime()) {
+                            //Fill associated table and takes out the rooms number
+                            rooms_of_the_day.push(json[key].salles[0].nomSalle.split(' ')[1]);
+                        }
+
+                        //If it is the last iteration
+                        if (key == json.length - 1) {
+                            if(i>0 && i<6){
                                 day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
                                 i++;
                             }
                         }
-                        var rooms_of_the_day = [];
-                        date_current_day = json[key].start.split('T')[0];
-                    }
-
-                    if (i <= 5) {
-                        //Fill associated table and takes out the rooms number
-                        rooms_of_the_day.push(json[key].salles[0].nomSalle.split(' ')[1]);
-                    }
-
-                    //If it is the last iteration
-                    if (key == json.length - 1) {
-                        if(i>0 && i<6)
-                            day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
                     }
                 }
 
