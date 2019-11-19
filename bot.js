@@ -14,17 +14,19 @@ client.on('ready', () => {
 client.login(auth.token);
 
 client.on('message', msg => {
-    if (msg.content.startsWith("!")) {
-        if(msg.content.substr(1) == "ping")
+    let args = msg.content.split(' ');
+    let command = args[0];
+    args.splice(0, 1);
+
+    if (command.startsWith("!")) {
+        if(command.substr(1) == "ping")
             msg.reply('pong');
-        if(msg.content.substr(1) == "sale")
+        if(command.substr(1) == "sale")
             msg.reply('C\'est toi qui est sale !');
-        if(msg.content.substr(1) == 'mac') {
-            let args = msg.content.split(' ');
-            args.splice(0, 1);
+        if(command.substr(1) == 'mac') {
             handleMac(msg, args);
         }
-        if(msg.content.substr(1)== "salle")
+        if(command.substr(1)== "salle")
             room_list(msg);
 
     }
@@ -48,9 +50,6 @@ function handleMac(msg, args) {
             +'**Liste des boissons** : ' + boissons.join(', ')+'\n'
         );
         msg.channel.send(embed_result);
-        msg.reply('Utilisation : !mac <burger> [<boisson>] [frite]');
-        msg.reply('Liste des burgers : ' + burgers.join(', '));
-        msg.reply('Liste des boissons : ' + boissons.join(', '));
     } else {
         if(args[0] === 'resume') {
             // Résumé de la commande
@@ -64,48 +63,39 @@ function handleMac(msg, args) {
                     continue;
                 }
                 let order = orders[key];
-                console.log('resumiing order ', order);
+
                 if(order.frite) {
                     resume.frites++;
-                    console.log('Adding frite');
                 }
                 if(order.burger && !(order.burger in resume.burgers)) {
                     resume.burgers[order.burger] = 1;
-                    console.log('Adding burger ', order.burger);
                 } else if(order.burger) {
                     resume.burgers[order.burger]++;
-                    console.log('Adding burger ', order.burger);
                 }
                 if(order.boisson && !(order.boisson in resume.boissons)) {
                     resume.boissons[order.boisson] = 1;
-                    console.log('Adding boisson ', order.boisson);
                 } else if(order.boisson) {
                     resume.boissons[order.boisson]++;
-                    console.log('Adding boisson ', order.boisson);
                 }
             }
-            let resultBurgers = 'Burgers : ';
+            let resultBurgers = '**Burgers** : ';
             for(let key in resume.burgers) {
                 if(!resume.burgers.hasOwnProperty(key)) {
                     continue;
                 }
                 resultBurgers += resume.burgers[key] + ' ' + key + ', ';
             }
-            resultBurgers.slice(0, -2);
-            msg.reply(resultBurgers);
-            let resultBoissons = 'Boissons : ';
+            resultBurgers = resultBurgers.slice(0, -2);
+            let resultBoissons = '**Boissons **: ';
             for(let key in resume.boissons) {
                 if(!resume.boissons.hasOwnProperty(key)) {
                     continue;
                 }
                 resultBoissons += resume.boissons[key] + ' ' + key + ', ';
             }
-            resultBoissons.slice(0, -2);
-            msg.reply(resultBoissons);
-            msg.reply(resume.frites + ' frites');
-
-            embed_result.setDescription("- **Burgers ** : "+resultBurgers+"\n"
-                +"- **Boissons ** : "+resultBoissons+"\n"
+            resultBoissons = resultBoissons.slice(0, -2);
+            embed_result.setDescription("- "+resultBurgers+"\n"
+                +"- "+resultBoissons+"\n"
                 +"- **Frites ** : "+resume.frites+"\n"
             );
             msg.channel.send(embed_result);
@@ -130,7 +120,6 @@ function handleMac(msg, args) {
             if(!unknownParams.length) {
                 orders[msg.author.id] = order;
                 msg.react('👌');
-                console.log('Order placed : ', order);
             } else {
                 msg.reply('Unknown parameters : ' + unknownParams.join(' '));
             }
