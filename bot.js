@@ -37,11 +37,11 @@ client.on('message', msg => {
         if(command.substr(1) == 'mac') {
             handleMac(msg, args);
         }
-        if(command.substr(1)== "salle")
-            if(!talked_recently.has(msg.author.id)){
+        if(command.substr(1)== "salle") {
+            if (!talked_recently.has(msg.author.id)) {
                 room_list(msg);
                 //Bot commander by pass the rules
-                if(!is_bot_commander(msg)) {
+                if (!is_bot_commander(msg)) {
                     talked_recently.add(msg.author.id);
                     msg.react('⏲️')
                         .then(setTimeout(() => {
@@ -49,15 +49,27 @@ client.on('message', msg => {
                             msg.clearReactions();
                         }, 20000));
                 }
-            }else{
+            } else {
                 msg.react('⏲️')
-                    .then(setTimeout(()=>{
+                    .then(setTimeout(() => {
                         talked_recently.delete(msg.author.id);
                         msg.clearReactions();
-                    },20000));
+                    }, 20000));
             }
+        }
+    }else if(msg.content.toLowerCase().includes('bot')){
+        if(msg.content.toLowerCase().includes('de merde')) {
+            let embed_result = new Discord.RichEmbed()
+                .setColor('#f6ffff')
+                .setImage("https://media.giphy.com/media/we1KGq2yvN65a/giphy.gif");
+            msg.reply(embed_result);
+        }else{
+            let embed_result = new Discord.RichEmbed()
+                .setColor('#f6ffff')
+                .setImage("https://media0.giphy.com/media/CYUDHVmioGETu/giphy.gif");
+            msg.reply(embed_result);
+        }
     }
-
 });
 
 let orders = {};
