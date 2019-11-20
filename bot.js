@@ -113,7 +113,7 @@ function handleMac(msg, args) {
                 orders = {};
                 msg.react('👌');
             }else{
-                msg.reply("Tu cherches les problèmes toi ?")
+                msg.reply("tu cherches les problèmes toi ?")
             }
         } else {
             let unknownParams = [];
