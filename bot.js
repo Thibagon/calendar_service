@@ -5,6 +5,7 @@ const auth = require('./auth.json');
 const burgerEmoji = "🍔";
 const burgerReact = reaction => reaction.emoji.name === burgerEmoji;
 const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+const role_bot_commander = "bot_commander";
 
 
 client.on('ready', channel => {
@@ -27,7 +28,7 @@ client.on('message', msg => {
     args.splice(0, 1);
 
     if (command.startsWith("!")) {
-        console.log(msg.author.username+" : "+msg.content);
+        //console.log(msg.author.username+" : "+msg.content);
         if(command.substr(1) == "ping")
             msg.reply('pong');
         if(command.substr(1) == "sale")
@@ -108,8 +109,12 @@ function handleMac(msg, args) {
             );
             msg.channel.send(embed_result);
         } else if(args[0] === 'reset') {
-            orders = {};
-            msg.react('👌');
+            if(msg.member.roles.some(r=>role_bot_commander.includes(r.name))){
+                orders = {};
+                msg.react('👌');
+            }else{
+                msg.reply("Tu cherches les problèmes toi ?")
+            }
         } else {
             let unknownParams = [];
             // Prise de commande
