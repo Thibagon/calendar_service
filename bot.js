@@ -7,8 +7,16 @@ const burgerReact = reaction => reaction.emoji.name === burgerEmoji;
 const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
 
 
-client.on('ready', () => {
+client.on('ready', channel => {
     console.log(`Logged in as ${client.user.tag}!`);
+    var chan = client.channels.find(val => val.type == "text" && val.position == "0");
+    chan.send("Hé la qui va là ?! MSI Assistant !");
+});
+
+client.on('disconnect', channel => {
+    console.log(`Bot disconnected`);
+    var chan = client.channels.find(val => val.type == "text" && val.position == "0");
+    chan.send("Je vais faire un petit somme, à plus tard");
 });
 
 client.login(auth.token);
@@ -159,88 +167,74 @@ function room_list(msg){
                 let date_next = new Date(json[0].start.split('T')[0]);
                 let diffDays = Math.ceil((date_next - date) / (1000 * 60 * 60 * 24));
 
-                day_room = "L'alternance du cesi revient";
+                day_room = "L'alternance du cesi revient bientôt !";
+                /*
                 if(diffDays==1){
                     day_room += " demain";
                 }else if(diffDays > 1){
                     day_room +=" le "+date_next.toLocaleDateString()+" plus que "+ diffDays+ " jours";
                 }else if(diffDays < 0){
                     day_room = "L'alternance est passé depuis "+ Math.abs(diffDays) +" jour"+(diffDays!=-1 ? "":"s");
-                }
+                }*/
 
                 embed_result.setTitle(day_room);
 
             }else {
+                var rooms_current_day = [];
                 for (let key in json) {
-                    if(new Date(json[key].start.split('T')[0]).getTime() >= date.getTime() ){
-                        if (json[key].start.split('T')[0] != date_current_day) {
-                            //If it is the first iteration
-                            if (date_current_day != null) {
-                                //Put the duplicates away
-                                if(i+1>0 && i+1<6 ){
-                                    day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
-                                    i++;
-                                }
-                            }
-                            var rooms_of_the_day = [];
-                            date_current_day = json[key].start.split('T')[0];
-                        }
-
-                        if (i <= 5 || new Date(date_current_day).getTime() >= date.getTime()) {
-                            //Fill associated table and takes out the rooms number
-                            rooms_of_the_day.push(json[key].salles[0].nomSalle.split(' ')[1]);
-                        }
-
-                        //If it is the last iteration
-                        if (key == json.length - 1) {
-                            if(i>0 && i<6){
-                                day_room[days[i]] = Array.from(new Set(rooms_of_the_day));
-                                i++;
-                            }
-                        }
+                    if (json[key].start.split('T')[0] != date_current_day) {
+                        rooms_current_day = [];
                     }
+                    date_current_day = json[key].start.split('T')[0];
+                    if(json[key].salles.length>1){
+                        var temp_salles = "";
+                        for(salle in json[key].salles){
+                            temp_salles += json[key].salles[salle].nomSalle.split(' ')[1] +"/";
+                        }
+                        temp_salles = temp_salles.slice(0,-1);
+                        rooms_current_day.push(temp_salles);
+                    }else{
+                        rooms_current_day.push(json[key].salles[0].nomSalle.split(' ')[1]);
+                    }
+                    day_room[days[new Date(json[key].start.split('T')[0]).getDay()]] = Array.from(new Set(rooms_current_day));
                 }
 
-                let title_embed = " Jour         | Salle            |";
+                let max_length_string = 0;
+                for(i in day_room){
+                    day_room[i].toString().length>max_length_string ? max_length_string = day_room[i].toString().length : '';
+                }
+
+                let title_embed = " Jour         | Salle"+" ".repeat(max_length_string);
                 let str_title = "-";
                 let description_embed = "";
                 let separator_index;
-                let closing_line_index = title_embed.length;
 
                 separator_index = title_embed.indexOf("|")+1;
                 title_embed = "|"+title_embed+"\n";
 
                 //Add separator between table head and body
-                let head_body_separator = "|";
-                for(let space = separator_index - head_body_separator.length;space != 0;space --){
-                    head_body_separator += "-"
-                }
-                head_body_separator += "|";
-                for(let space = closing_line_index - head_body_separator.length;space != 0;space --){
-                    head_body_separator += "-"
-                }
-                head_body_separator += "|\n";
+                let head_body_separator ="|"+"-".repeat(separator_index-1)+"|";
+                head_body_separator +="-".repeat(max_length_string)+"|\n";
                 title_embed += head_body_separator;
 
                 //Build the body table
                 for(day in day_room){
-                    let temp_line = "";
-                    temp_line += "| "+day;
+                    let day_temp_line = "";
+                    let room_temp_line = "";
+
                     //Add the middle separator at the right place
-                    if(temp_line.length < separator_index) {
-                        for(let space = separator_index - temp_line.length;space != 0;space --){
-                            temp_line += " ";
-                        }
-                    }
-                    temp_line += "|"+day_room[day];
+                    day_temp_line += "| "+day;
+                    day_temp_line += " ".repeat(separator_index-day_temp_line.length);
+
                     //Add the closing pipe at the right place
-                    if(temp_line.length < closing_line_index) {
-                        for(let space = closing_line_index - temp_line.length;space != 0;space --){
-                            temp_line += " ";
-                        }
-                        temp_line += "|\n";
+                    room_temp_line += "|"+day_room[day];
+                    if(max_length_string-room_temp_line.length >= 0) {
+                        room_temp_line += " ".repeat((max_length_string - room_temp_line.length)+1) + "|\n";
+                    }else{
+                        room_temp_line += "|\n";
                     }
-                    description_embed += temp_line;
+
+                    description_embed += day_temp_line+room_temp_line;
                 }
 
                 //Build a markdown table in an embed response
