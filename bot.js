@@ -109,7 +109,7 @@ function handleMac(msg, args) {
             );
             msg.channel.send(embed_result);
         } else if(args[0] === 'reset') {
-            if(msg.member.roles.some(r=>role_bot_commander.includes(r.name))){
+            if(is_bot_commander(msg)){
                 orders = {};
                 msg.react('👌');
             }else{
@@ -252,4 +252,8 @@ function room_list(msg){
             }
             msg.channel.send(embed_result);
         });
+}
+
+function is_bot_commander(msg){
+    return msg.member.roles.some(r=>role_bot_commander.includes(r.name))
 }
