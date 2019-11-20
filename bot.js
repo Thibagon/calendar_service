@@ -6,6 +6,7 @@ const burgerEmoji = "🍔";
 const burgerReact = reaction => reaction.emoji.name === burgerEmoji;
 const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
 const role_bot_commander = "bot_commander";
+const talked_recently = new Set();
 
 
 client.on('ready', channel => {
@@ -37,11 +38,27 @@ client.on('message', msg => {
             handleMac(msg, args);
         }
         if(command.substr(1)== "salle")
-            room_list(msg);
+            if(!talked_recently.has(msg.author.id)){
+                room_list(msg);
+                //Bot commander by pass the rules
+                if(!is_bot_commander(msg)) {
+                    talked_recently.add(msg.author.id);
+                    msg.react('⏲️')
+                        .then(setTimeout(() => {
+                            talked_recently.delete(msg.author.id);
+                            msg.clearReactions();
+                        }, 20000));
+                }
+            }else{
+                msg.react('⏲️')
+                    .then(setTimeout(()=>{
+                        talked_recently.delete(msg.author.id);
+                        msg.clearReactions();
+                    },20000));
+            }
     }
 
 });
-
 
 let orders = {};
 
