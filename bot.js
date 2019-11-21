@@ -5,7 +5,7 @@ const auth = require('./auth.json');
 const burgerEmoji = "🍔";
 const burgerReact = reaction => reaction.emoji.name === burgerEmoji;
 const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
-const role_bot_commander = "bot_commander";
+const role_bot_commander = ["bot_commander","Admin","Délégués"];
 const talked_recently = new Set();
 
 
