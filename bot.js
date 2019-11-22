@@ -29,7 +29,7 @@ client.on('message', msg => {
     args.splice(0, 1);
 
     if (command.startsWith("!")) {
-        //console.log(msg.author.username+" : "+msg.content);
+        console.log(msg.author.username+" : "+msg.content);
         if(command.substr(1) == "ping")
             msg.reply('pong');
         if(command.substr(1) == "sale")
@@ -43,20 +43,33 @@ client.on('message', msg => {
                 //Bot commander by pass the rules
                 if (!is_bot_commander(msg)) {
                     talked_recently.add(msg.author.id);
+                    if(msg.member != null){
+                        msg.react('⏲️')
+                            .then(setTimeout(() => {
+                                talked_recently.delete(msg.author.id);
+                                msg.clearReactions();
+                            }, 20000));
+                    }else{
+                        setTimeout(() => {
+                            talked_recently.delete(msg.author.id);
+                        }, 20000)
+                    }
+                }
+            } else {
+                if(msg.member != null){
                     msg.react('⏲️')
                         .then(setTimeout(() => {
                             talked_recently.delete(msg.author.id);
                             msg.clearReactions();
                         }, 20000));
-                }
-            } else {
-                msg.react('⏲️')
-                    .then(setTimeout(() => {
+                }else{
+                    setTimeout(() => {
                         talked_recently.delete(msg.author.id);
-                        msg.clearReactions();
-                    }, 20000));
+                    }, 20000)
+                }
             }
         }
+
     }else if(msg.content.toLowerCase().includes('bot')){
         if(msg.content.toLowerCase().includes('de merde')) {
             let embed_result = new Discord.RichEmbed()
@@ -284,5 +297,8 @@ function room_list(msg){
 }
 
 function is_bot_commander(msg){
-    return msg.member.roles.some(r=>role_bot_commander.includes(r.name))
+    if(msg.member != null)
+        return msg.member.roles.some(r=>role_bot_commander.includes(r.name))
+    else
+        return false;
 }
