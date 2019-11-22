@@ -12,7 +12,7 @@ const talked_recently = new Set();
 client.on('ready', channel => {
     console.log(`Logged in as ${client.user.tag}!`);
     var chan = client.channels.find(val => val.type == "text" && val.position == "0");
-    chan.send("Hé la qui va là ?! MSI Assistant !");
+    chan.send("Hé là qui va là ?! MSI Assistant !");
 });
 
 client.on('disconnect', channel => {
@@ -38,36 +38,7 @@ client.on('message', msg => {
             handleMac(msg, args);
         }
         if(command.substr(1)== "salle") {
-            if (!talked_recently.has(msg.author.id)) {
-                room_list(msg);
-                //Bot commander by pass the rules
-                if (!is_bot_commander(msg)) {
-                    talked_recently.add(msg.author.id);
-                    if(msg.member != null){
-                        msg.react('⏲️')
-                            .then(setTimeout(() => {
-                                talked_recently.delete(msg.author.id);
-                                msg.clearReactions();
-                            }, 20000));
-                    }else{
-                        setTimeout(() => {
-                            talked_recently.delete(msg.author.id);
-                        }, 20000)
-                    }
-                }
-            } else {
-                if(msg.member != null){
-                    msg.react('⏲️')
-                        .then(setTimeout(() => {
-                            talked_recently.delete(msg.author.id);
-                            msg.clearReactions();
-                        }, 20000));
-                }else{
-                    setTimeout(() => {
-                        talked_recently.delete(msg.author.id);
-                    }, 20000)
-                }
-            }
+            room_list(msg);
         }
 
     }else if(msg.content.toLowerCase().includes('bot')){
@@ -183,6 +154,37 @@ function handleMac(msg, args) {
 }
 
 function room_list(msg){
+    if (!talked_recently.has(msg.author.id)) {
+        //Bot commander by pass the rules
+        if (!is_bot_commander(msg)) {
+            talked_recently.add(msg.author.id);
+            if(msg.member != null){
+                msg.react('⏲️')
+                    .then(setTimeout(() => {
+                        talked_recently.delete(msg.author.id);
+                        msg.clearReactions();
+                    }, 20000));
+            }else{
+                setTimeout(() => {
+                    talked_recently.delete(msg.author.id);
+                }, 20000)
+            }
+        }
+    } else {
+        if(msg.member != null){
+            msg.react('⏲️')
+                .then(setTimeout(() => {
+                    talked_recently.delete(msg.author.id);
+                    msg.clearReactions();
+                }, 20000));
+        }else{
+            setTimeout(() => {
+                talked_recently.delete(msg.author.id);
+            }, 20000)
+        }
+        return;
+    }
+
     //Link to the API here, temporary attacking my VPS with manually downloaded
     //This is the part where the CESI should bring his collaboration
     fetch('http://51.254.133.142/sample/sample.json')
