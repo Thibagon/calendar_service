@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const fetch = require('node-fetch')
+const fetch = require('node-fetch');
 const client = new Discord.Client();
 const auth = require('./auth.json');
 const burgerEmoji = "🍔";
@@ -20,8 +20,9 @@ client.on('disconnect', channel => {
     var chan = client.channels.find(val => val.type == "text" && val.position == "0");
     chan.send("Je vais faire un petit somme, à plus tard");
 });
-
-client.login(auth.token);
+if (require.main === module) {
+    client.login(auth.token);
+}
 
 client.on('message', msg => {
     let args = msg.content.split(' ');
@@ -97,7 +98,7 @@ function handleMac(msg, args) {
                 frites: 0,
             };
             for(let key in orders) {
-                if(!orders.hasOwnProperty(key)) {
+                if(!orders.hasOwnProperty(key) || !orders[key]) {
                     continue;
                 }
                 let order = orders[key];
@@ -144,6 +145,9 @@ function handleMac(msg, args) {
             }else{
                 msg.reply("tu cherches les problèmes toi ?")
             }
+        } else if(args[0] === 'cancel') {
+            orders[msg.author.id] = undefined;
+            msg.react('👌');
         } else {
             let unknownParams = [];
             // Prise de commande
@@ -286,3 +290,7 @@ function room_list(msg){
 function is_bot_commander(msg){
     return msg.member.roles.some(r=>role_bot_commander.includes(r.name))
 }
+
+module.exports = {
+    handleMac,
+};
