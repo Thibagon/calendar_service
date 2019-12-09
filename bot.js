@@ -12,7 +12,7 @@ const talked_recently = new Set();
 client.on('ready', channel => {
     console.log(`Logged in as ${client.user.tag}!`);
     var chan = client.channels.find(val => val.type == "text" && val.position == "0");
-    chan.send("Hé là qui va là ?! MSI Assistant !");
+    chan.send("Guess who's back ?! MSI Assistant !");
 });
 
 client.on('disconnect', channel => {
@@ -29,7 +29,8 @@ client.on('message', msg => {
     args.splice(0, 1);
 
     if (command.startsWith("!")) {
-        console.log(msg.author.username+" : "+msg.content);
+        let d = new Date()
+        console.log("["+d.toLocaleDateString()+" "+d.toLocaleTimeString()+"] "+ msg.author.username+" : "+msg.content);
         if(command.substr(1) == "ping")
             msg.reply('pong');
         if(command.substr(1) == "sale")
