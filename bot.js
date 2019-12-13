@@ -62,7 +62,7 @@ let orders = {};
 
 function handleMac(msg, args) {
     const burgers = ['classique', 'chicken', 'bbq', 'comte', 'basque', 'montagnard', 'veggie'];
-    const boissons = ['coca', 'icetea', 'orangina'];
+    const boissons = ['coca', 'icetea', 'orangina', 'eau'];
     let embed_result = new Discord.RichEmbed()
         .setColor('#b93323')
         .setAuthor("Réponse automatique")
