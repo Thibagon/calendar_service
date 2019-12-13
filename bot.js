@@ -2,22 +2,21 @@ const Discord = require('discord.js');
 const fetch = require('node-fetch');
 const client = new Discord.Client();
 const auth = require('./auth.json');
-const burgerEmoji = "🍔";
-const burgerReact = reaction => reaction.emoji.name === burgerEmoji;
+const mac = require('./mac.js');
 const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
-const role_bot_commander = ["bot_commander","Admin","Délégués"];
 const talked_recently = new Set();
+const {isAdmin} = require('./utils.js');
 
 
 client.on('ready', channel => {
     console.log(`Logged in as ${client.user.tag}!`);
-    var chan = client.channels.find(val => val.type == "text" && val.position == "0");
+    let chan = client.channels.find(val => val.type == "text" && val.position == "0");
     chan.send("Guess who's back ?! MSI Assistant !");
 });
 
 client.on('disconnect', channel => {
     console.log(`Bot disconnected`);
-    var chan = client.channels.find(val => val.type == "text" && val.position == "0");
+    let chan = client.channels.find(val => val.type == "text" && val.position == "0");
     chan.send("Je vais faire un petit somme, à plus tard");
 });
 if (require.main === module) {
@@ -30,16 +29,16 @@ client.on('message', msg => {
     args.splice(0, 1);
 
     if (command.startsWith("!")) {
-        let d = new Date()
+        let d = new Date();
         console.log("["+d.toLocaleDateString()+" "+d.toLocaleTimeString()+"] "+ msg.author.username+" : "+msg.content);
-        if(command.substr(1) == "ping")
+        if(command.substr(1) === "ping")
             msg.reply('pong');
-        if(command.substr(1) == "sale")
+        if(command.substr(1) === "sale")
             msg.reply('C\'est toi qui est sale !');
-        if(command.substr(1) == 'mac') {
-            handleMac(msg, args);
+        if(command.substr(1) === 'mac') {
+            mac.handleMac(msg, args);
         }
-        if(command.substr(1)== "salle") {
+        if(command.substr(1) === "salle") {
             room_list(msg);
         }
 
@@ -57,106 +56,6 @@ client.on('message', msg => {
         }
     }
 });
-
-let orders = {};
-
-function handleMac(msg, args) {
-    const burgers = ['classique', 'chicken', 'bbq', 'comte', 'basque', 'montagnard', 'veggie'];
-    const boissons = ['coca', 'icetea', 'orangina', 'eau'];
-    let embed_result = new Discord.RichEmbed()
-        .setColor('#b93323')
-        .setAuthor("Réponse automatique")
-        .setTitle("Les Mecs Au Camion");
-
-    if(args.length === 0) {
-        embed_result.setDescription('__Utilisation : !mac <burger> [<boisson>] [frite]__\n'
-            +'**Liste des burgers** : ' + burgers.join(', ')+'\n'
-            +'**Liste des boissons** : ' + boissons.join(', ')+'\n'
-        );
-        msg.channel.send(embed_result);
-    } else {
-        if(args[0] === 'resume') {
-            // Résumé de la commande
-            const resume = {
-                burgers: {},
-                boissons: {},
-                frites: 0,
-            };
-            for(let key in orders) {
-                if(!orders.hasOwnProperty(key) || !orders[key]) {
-                    continue;
-                }
-                let order = orders[key];
-
-                if(order.frite) {
-                    resume.frites++;
-                }
-                if(order.burger && !(order.burger in resume.burgers)) {
-                    resume.burgers[order.burger] = 1;
-                } else if(order.burger) {
-                    resume.burgers[order.burger]++;
-                }
-                if(order.boisson && !(order.boisson in resume.boissons)) {
-                    resume.boissons[order.boisson] = 1;
-                } else if(order.boisson) {
-                    resume.boissons[order.boisson]++;
-                }
-            }
-            let resultBurgers = '**Burgers** : ';
-            for(let key in resume.burgers) {
-                if(!resume.burgers.hasOwnProperty(key)) {
-                    continue;
-                }
-                resultBurgers += resume.burgers[key] + ' ' + key + ', ';
-            }
-            resultBurgers = resultBurgers.slice(0, -2);
-            let resultBoissons = '**Boissons **: ';
-            for(let key in resume.boissons) {
-                if(!resume.boissons.hasOwnProperty(key)) {
-                    continue;
-                }
-                resultBoissons += resume.boissons[key] + ' ' + key + ', ';
-            }
-            resultBoissons = resultBoissons.slice(0, -2);
-            embed_result.setDescription("- "+resultBurgers+"\n"
-                +"- "+resultBoissons+"\n"
-                +"- **Frites ** : "+resume.frites+"\n"
-            );
-            msg.channel.send(embed_result);
-        } else if(args[0] === 'reset') {
-            if(is_bot_commander(msg)){
-                orders = {};
-                msg.react('👌');
-            }else{
-                msg.reply("tu cherches les problèmes toi ?")
-            }
-        } else if(args[0] === 'cancel') {
-            orders[msg.author.id] = undefined;
-            msg.react('👌');
-        } else {
-            let unknownParams = [];
-            // Prise de commande
-            let order = {};
-            for(let i = 0; i < args.length; i++) {
-                if(burgers.includes(args[i])) {
-                    order.burger = args[i];
-                } else if(boissons.includes(args[i])) {
-                    order.boisson = args[i];
-                } else if(/frites?/.test(args[i])) {
-                    order.frite = true;
-                } else {
-                    unknownParams.push(args[i]);
-                }
-            }
-            if(!unknownParams.length) {
-                orders[msg.author.id] = order;
-                msg.react('👌');
-            } else {
-                msg.reply('Unknown parameters : ' + unknownParams.join(' '));
-            }
-        }
-    }
-}
 
 function room_list(msg){
     if (!talked_recently.has(msg.author.id)) {
@@ -302,14 +201,3 @@ function room_list(msg){
             msg.channel.send(embed_result);
         });
 }
-
-function is_bot_commander(msg){
-    if(msg.member != null)
-        return msg.member.roles.some(r=>role_bot_commander.includes(r.name))
-    else
-        return false;
-}
-
-module.exports = {
-    handleMac,
-};
