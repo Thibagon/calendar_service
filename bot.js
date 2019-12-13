@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const fetch = require('node-fetch')
+const fetch = require('node-fetch');
 const client = new Discord.Client();
 const auth = require('./auth.json');
 const burgerEmoji = "🍔";
@@ -12,7 +12,7 @@ const talked_recently = new Set();
 client.on('ready', channel => {
     console.log(`Logged in as ${client.user.tag}!`);
     var chan = client.channels.find(val => val.type == "text" && val.position == "0");
-    chan.send("Hé la qui va là ?! MSI Assistant !");
+    chan.send("Guess who's back ?! MSI Assistant !");
 });
 
 client.on('disconnect', channel => {
@@ -20,8 +20,9 @@ client.on('disconnect', channel => {
     var chan = client.channels.find(val => val.type == "text" && val.position == "0");
     chan.send("Je vais faire un petit somme, à plus tard");
 });
-
-client.login(auth.token);
+if (require.main === module) {
+    client.login(auth.token);
+}
 
 client.on('message', msg => {
     let args = msg.content.split(' ');
@@ -29,7 +30,8 @@ client.on('message', msg => {
     args.splice(0, 1);
 
     if (command.startsWith("!")) {
-        //console.log(msg.author.username+" : "+msg.content);
+        let d = new Date()
+        console.log("["+d.toLocaleDateString()+" "+d.toLocaleTimeString()+"] "+ msg.author.username+" : "+msg.content);
         if(command.substr(1) == "ping")
             msg.reply('pong');
         if(command.substr(1) == "sale")
@@ -38,25 +40,9 @@ client.on('message', msg => {
             handleMac(msg, args);
         }
         if(command.substr(1)== "salle") {
-            if (!talked_recently.has(msg.author.id)) {
-                room_list(msg);
-                //Bot commander by pass the rules
-                if (!is_bot_commander(msg)) {
-                    talked_recently.add(msg.author.id);
-                    msg.react('⏲️')
-                        .then(setTimeout(() => {
-                            talked_recently.delete(msg.author.id);
-                            msg.clearReactions();
-                        }, 20000));
-                }
-            } else {
-                msg.react('⏲️')
-                    .then(setTimeout(() => {
-                        talked_recently.delete(msg.author.id);
-                        msg.clearReactions();
-                    }, 20000));
-            }
+            room_list(msg);
         }
+
     }else if(msg.content.toLowerCase().includes('bot')){
         if(msg.content.toLowerCase().includes('de merde')) {
             let embed_result = new Discord.RichEmbed()
@@ -97,7 +83,7 @@ function handleMac(msg, args) {
                 frites: 0,
             };
             for(let key in orders) {
-                if(!orders.hasOwnProperty(key)) {
+                if(!orders.hasOwnProperty(key) || !orders[key]) {
                     continue;
                 }
                 let order = orders[key];
@@ -144,6 +130,9 @@ function handleMac(msg, args) {
             }else{
                 msg.reply("tu cherches les problèmes toi ?")
             }
+        } else if(args[0] === 'cancel') {
+            orders[msg.author.id] = undefined;
+            msg.react('👌');
         } else {
             let unknownParams = [];
             // Prise de commande
@@ -170,6 +159,37 @@ function handleMac(msg, args) {
 }
 
 function room_list(msg){
+    if (!talked_recently.has(msg.author.id)) {
+        //Bot commander by pass the rules
+        if (!is_bot_commander(msg)) {
+            talked_recently.add(msg.author.id);
+            if(msg.member != null){
+                msg.react('⏲️')
+                    .then(setTimeout(() => {
+                        talked_recently.delete(msg.author.id);
+                        msg.clearReactions();
+                    }, 20000));
+            }else{
+                setTimeout(() => {
+                    talked_recently.delete(msg.author.id);
+                }, 20000)
+            }
+        }
+    } else {
+        if(msg.member != null){
+            msg.react('⏲️')
+                .then(setTimeout(() => {
+                    talked_recently.delete(msg.author.id);
+                    msg.clearReactions();
+                }, 20000));
+        }else{
+            setTimeout(() => {
+                talked_recently.delete(msg.author.id);
+            }, 20000)
+        }
+        return;
+    }
+
     //Link to the API here, temporary attacking my VPS with manually downloaded
     //This is the part where the CESI should bring his collaboration
     fetch('http://51.254.133.142/sample/sample.json')
@@ -284,5 +304,12 @@ function room_list(msg){
 }
 
 function is_bot_commander(msg){
-    return msg.member.roles.some(r=>role_bot_commander.includes(r.name))
+    if(msg.member != null)
+        return msg.member.roles.some(r=>role_bot_commander.includes(r.name))
+    else
+        return false;
 }
+
+module.exports = {
+    handleMac,
+};
