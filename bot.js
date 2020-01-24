@@ -36,7 +36,7 @@ client.on('message', msg => {
         if(command.substr(1) === "sale")
             msg.reply('C\'est toi qui est sale !');
         if(command.substr(1) === 'mac') {
-            mac.handleMac(msg, args);
+            mac.handleMac(client, msg, args);
         }
         if(command.substr(1) === "salle") {
             room_list(msg);

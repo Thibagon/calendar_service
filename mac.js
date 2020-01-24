@@ -4,7 +4,7 @@ const {isAdmin} = require('./utils.js');
 let orders = {};
 let payer = null;
 
-function handleMac(msg, args) {
+function handleMac(client, msg, args) {
     const burgers = ['classique', 'chicken', 'bbq', 'comte', 'basque', 'montagnard', 'veggie'];
     const boissons = ['coca', 'icetea', 'orangina', 'eau'];
     let embed_result = new Discord.RichEmbed()
@@ -69,7 +69,7 @@ function handleMac(msg, args) {
             msg.channel.send(embed_result);
         } else if(args[0] === 'payer') {
             if(isAdmin(msg)){
-                payer = message.mentions.users.first();
+                payer = msg.mentions.users.first();
                 if(payer) {
                     msg.react('👌');
                 } else {
@@ -79,7 +79,7 @@ function handleMac(msg, args) {
                 msg.reply("tu cherches les problèmes toi ?")
             }
         } else if(args[0] === 'pay') {
-            if(payer && msg.member.user.id === payer.id) {
+            if(payer && msg.member && msg.member.user.id === payer.id) {
                 if(args[1] === 'list') {
                     let missingPayments = [];
                     for (let key in orders) {
@@ -87,13 +87,14 @@ function handleMac(msg, args) {
                             continue;
                         }
                         let order = orders[key];
+
                         if(!order.paid) {
-                            missingPayments.push(msg.member.user.username);
+                            missingPayments.push(client.users.get(key).username + ' : ' + calculatePrice(order));
                         }
                     }
                     msg.reply('Missing payments : ' + missingPayments.join(', '));
                 } else {
-                    let userWhoPaid = message.mentions.users.first();
+                    let userWhoPaid = msg.mentions.users.first();
                     if(userWhoPaid) {
                         orders[userWhoPaid.id].paid = true;
                         msg.react('👌');
@@ -119,6 +120,10 @@ function handleMac(msg, args) {
             if(orders[msg.author.id] && orders[msg.author.id].paid) {
                 paid = true;
             }
+            if(paid) {
+                msg.reply('Tu as déjà payé, commande non modifiable.');
+                return;
+            }
             let order = {
                 paid
             };
@@ -140,6 +145,20 @@ function handleMac(msg, args) {
                 msg.reply('Unknown parameters : ' + unknownParams.join(' '));
             }
         }
+    }
+}
+
+function calculatePrice(order) {
+    if(order.burger && order.frite && order.boisson) {
+        return '10,80€';
+    } else if((order.burger && order.frite && !order.boisson) || (order.burger && !order.frite && order.boisson)) {
+        return '9,80€';
+    } else if(order.burger && !order.frite && !order.boisson) {
+        return '8,50€';
+    } else if(!order.burger && order.frite && order.boisson) {
+        return '4,00€'
+    } else {
+        return '2,00€'
     }
 }
 
