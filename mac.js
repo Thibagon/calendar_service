@@ -1,5 +1,11 @@
 const Discord = require('discord.js');
+const fs = require('fs');
 const {isAdmin} = require('./utils.js');
+const burgers_file = fs.readFileSync('common/burgers','utf8');
+
+for(burger in burgers_file){
+    console.log(burger);
+}
 
 let orders = {};
 let payer = null;
