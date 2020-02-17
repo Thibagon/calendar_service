@@ -59,8 +59,8 @@ client.on('message', msg => {
 
 function room_list(msg){
     if (!talked_recently.has(msg.author.id)) {
-        //Bot commander by pass the rules
-        if (!is_bot_commander(msg)) {
+        //Bot admin by pass the rules
+        if (!isAdmin(msg)) {
             talked_recently.add(msg.author.id);
             if(msg.member != null){
                 msg.react('⏲️')
