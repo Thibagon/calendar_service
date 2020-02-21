@@ -5,7 +5,7 @@ let orders = {};
 let payer = null;
 
 function handleMac(client, msg, args) {
-    const burgers = ['classique', 'chicken', 'bbq', 'comte', 'basque', 'montagnard', 'veggie'];
+    const burgers = ['classique', 'chicken', 'bbq', 'comte', 'basque', 'montagnard', 'veggie', 'fire'];
     const boissons = ['coca', 'icetea', 'orangina', 'eau'];
     let embed_result = new Discord.RichEmbed()
         .setColor('#b93323')
@@ -16,6 +16,10 @@ function handleMac(client, msg, args) {
         embed_result.setDescription('__Utilisation : !mac <burger> [<boisson>] [frite]__\n'
             +'**Liste des burgers** : ' + burgers.join(', ')+'\n'
             +'**Liste des boissons** : ' + boissons.join(', ')+'\n'
+            +'Additionnal commands : \n'
+            +'**!mac resume** : Resume of the final order\n'
+            +'**!mac cancel** : Cancel your order\n'
+            +'**!mac pay** : See your due\n'
         );
         msg.channel.send(embed_result);
     } else {
@@ -27,7 +31,7 @@ function handleMac(client, msg, args) {
                 frites: 0,
             };
             for (let key in orders) {
-                if (!orders.hasOwnProperty(key)) {
+                if (!orders.hasOwnProperty(key) || !orders[key]) {
                     continue;
                 }
                 let order = orders[key];
@@ -79,8 +83,8 @@ function handleMac(client, msg, args) {
                 msg.reply("tu cherches les problèmes toi ?")
             }
         } else if(args[0] === 'pay') {
-            if(payer && msg.member && msg.member.user.id === payer.id) {
-                if(args[1] === 'list') {
+            if (payer && msg.member && msg.member.user.id === payer.id) {
+                if (args[1] === 'list') {
                     let missingPayments = [];
                     for (let key in orders) {
                         if (!orders.hasOwnProperty(key)) {
@@ -88,22 +92,32 @@ function handleMac(client, msg, args) {
                         }
                         let order = orders[key];
 
-                        if(!order.paid) {
+                        if (!order.paid) {
                             missingPayments.push(client.users.get(key).username + ' : ' + calculatePrice(order));
                         }
                     }
                     msg.reply('Missing payments : ' + missingPayments.join(', '));
                 } else {
                     let userWhoPaid = msg.mentions.users.first();
-                    if(userWhoPaid) {
+                    if (userWhoPaid) {
                         orders[userWhoPaid.id].paid = true;
                         msg.react('👌');
                     } else {
                         msg.reply("Il faut mentionner le payeur.")
                     }
                 }
+            } else if (orders[msg.author.id] && !orders[msg.author.id].paid) {
+                msg.reply("Amount to pay for your order : " + calculatePrice(orders[msg.author.id]));
             } else {
                 msg.reply('Il faut être le payeur pour accepter un paiement ou afficher la liste.')
+            }
+        } else if(args[0] === 'cancel') {
+            if(orders[msg.author.id]) {
+                if(orders[msg.author.id].paid) {
+                    payer.send('Un utilisateur ayant payé a annulé sa commande : ' + msg.author.tag);
+                }
+                orders[msg.author.id] = null;
+                msg.react('👌');
             }
         } else if(args[0] === 'reset') {
             if(isAdmin(msg)){
@@ -141,6 +155,7 @@ function handleMac(client, msg, args) {
             if(!unknownParams.length) {
                 orders[msg.author.id] = order;
                 msg.react('👌');
+                msg.reply("Amount to pay for your order : " + calculatePrice(order));
             } else {
                 msg.reply('Unknown parameters : ' + unknownParams.join(' '));
             }
