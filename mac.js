@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const log = require('./logger.js');
-const conf = require('./auth.json');
+const conf = require('./conf.json');
 const {isAdmin} = require('./utils.js');
 
 let orders = {};

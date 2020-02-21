@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
 const fetch = require('node-fetch');
 const client = new Discord.Client();
-const conf = require('./auth.json');
+const auth = require('./auth.json');
+const conf = require('./conf.json');
 const mac = require('./mac.js');
 const logger = require('./logger.js');
 const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
@@ -21,7 +22,7 @@ client.on('disconnect', channel => {
     chan.send("Je vais faire un petit somme, à plus tard");
 });
 if (require.main === module) {
-    client.login(conf.token);
+    client.login(auth.token);
 }
 
 client.on('message', msg => {

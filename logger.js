@@ -1,7 +1,6 @@
 const fs = require('fs');
-const conf = require('./auth.json');
 
-var logger = fs.createWriteStream(conf.logPath+'log.txt', {
+var logger = fs.createWriteStream('log.txt', {
     flags: 'a' // 'a' means appending (old data will be preserved)
 })
 

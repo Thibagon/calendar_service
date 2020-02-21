@@ -1,0 +1,5 @@
+{
+  "burgers": ["BBQ","Comté","Classique","Chicken","Basque","Back to basic","Montagnard","Vegi","Fire","Burger du moment"],
+  "boissons": ["Coca","Icetea","Orangina","Eau"],
+  "admins": ["bot_commander","Admin","Délégués"]
+}
