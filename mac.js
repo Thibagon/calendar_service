@@ -1,18 +1,16 @@
 const Discord = require('discord.js');
-const fs = require('fs');
+const log = require('./logger.js');
+const conf = require('./auth.json');
 const {isAdmin} = require('./utils.js');
-const burgers_file = fs.readFileSync('common/burgers','utf8');
-
-for(burger in burgers_file){
-    console.log(burger);
-}
 
 let orders = {};
 let payer = null;
 
 function handleMac(client, msg, args) {
-    const burgers = ['classique', 'chicken', 'bbq', 'comte', 'basque', 'montagnard', 'veggie'];
-    const boissons = ['coca', 'icetea', 'orangina', 'eau'];
+
+    var burgers = conf.burgers;
+    var boissons = conf.boissons;
+
     let embed_result = new Discord.RichEmbed()
         .setColor('#b93323')
         .setAuthor("Réponse automatique")
