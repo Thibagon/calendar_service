@@ -93,7 +93,7 @@ function room_list(msg){
 
     //Link to the API here, temporary attacking my VPS with manually downloaded
     //This is the part where the CESI should bring his collaboration
-    fetch('http://51.254.133.142/sample/sample.json')
+    fetch(conf.planningURL)
         .then(res => res.json())
         .then(json => {
 
