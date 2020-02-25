@@ -34,25 +34,33 @@ function handleMac(client, msg, args) {
                 boissons: {},
                 frites: 0,
             };
+            let resumeParPersonne = '';
             for (let key in orders) {
                 if (!orders.hasOwnProperty(key) || !orders[key]) {
                     continue;
                 }
                 let order = orders[key];
-
-                if (order.frite) {
-                    resume.frites++;
-                }
+                let orderElems = [];
                 if (order.burger && !(order.burger in resume.burgers)) {
                     resume.burgers[order.burger] = 1;
+                    orderElems.push(order.burger);
                 } else if (order.burger) {
                     resume.burgers[order.burger]++;
+                    orderElems.push(order.burger);
                 }
                 if (order.boisson && !(order.boisson in resume.boissons)) {
                     resume.boissons[order.boisson] = 1;
+                    orderElems.push(order.boisson);
                 } else if (order.boisson) {
                     resume.boissons[order.boisson]++;
+                    orderElems.push(order.boisson);
                 }
+
+                if (order.frite) {
+                    resume.frites++;
+                    orderElems.push('frites');
+                }
+                resumeParPersonne +=  '- **' +  client.users.get(key).username + '** : ' + orderElems.join(', ') + '\n';
             }
             let resultBurgers = '**Burgers** : ';
             for (let key in resume.burgers) {
@@ -75,6 +83,8 @@ function handleMac(client, msg, args) {
                 + "- **Frites ** : " + resume.frites + "\n"
             );
             msg.channel.send(embed_result);
+            embed_result.setDescription(resumeParPersonne);
+            msg.author.send(embed_result);
         } else if(args[0] === 'payer') {
             if(isAdmin(msg)){
                 payer = msg.mentions.users.first();
