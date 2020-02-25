@@ -2,20 +2,22 @@ const Discord = require('discord.js');
 const fetch = require('node-fetch');
 const client = new Discord.Client();
 const auth = require('./auth.json');
+const conf = require('./conf.json');
 const mac = require('./mac.js');
+const logger = require('./logger.js');
 const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
 const talked_recently = new Set();
 const {isAdmin} = require('./utils.js');
 
 
 client.on('ready', channel => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    logger.writeLog(`Logged in as ${client.user.tag}!`);
     let chan = client.channels.find(val => val.type == "text" && val.position == "0");
     chan.send("Guess who's back ?! MSI Assistant !");
 });
 
 client.on('disconnect', channel => {
-    console.log(`Bot disconnected`);
+    logger.writeLog(`Bot disconnected`);
     let chan = client.channels.find(val => val.type == "text" && val.position == "0");
     chan.send("Je vais faire un petit somme, à plus tard");
 });
@@ -30,7 +32,7 @@ client.on('message', msg => {
 
     if (command.startsWith("!")) {
         let d = new Date();
-        console.log("["+d.toLocaleDateString()+" "+d.toLocaleTimeString()+"] "+ msg.author.username+" : "+msg.content);
+        logger.writeLog("["+d.toLocaleDateString()+" "+d.toLocaleTimeString()+"] "+ msg.author.username+" : "+msg.content);
         if(command.substr(1) === "ping")
             msg.reply('pong');
         if(command.substr(1) === "sale")
@@ -91,7 +93,7 @@ function room_list(msg){
 
     //Link to the API here, temporary attacking my VPS with manually downloaded
     //This is the part where the CESI should bring his collaboration
-    fetch('http://51.254.133.142/sample/sample.json')
+    fetch(conf.planningURL)
         .then(res => res.json())
         .then(json => {
 

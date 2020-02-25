@@ -5,7 +5,7 @@ This file contains rules to respect in term of participating in the bot project.
 - snake_case
 - tabulation (4 spaces)
 
-## Return of the response
+## Return a response
 
 Feel free to tag the user that ask the bot, by tagging I mean make use of `msg.reply` command so the bot will tag `@User [Response]` otherwise, you can just use `msg.channel.send(response)`.
 
@@ -28,4 +28,9 @@ embed_result.setDescription("```Markdown\n"
                         +description_embed
                         +"```");
 ```
-
+##Logging
+You should consider using the logger.js file to add your log into the logging file.
+```javascript
+const logger = require('./logger.js');
+logger.writeLog("somelog");
+```

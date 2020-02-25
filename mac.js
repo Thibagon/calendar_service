@@ -1,12 +1,16 @@
 const Discord = require('discord.js');
+const log = require('./logger.js');
+const conf = require('./conf.json');
 const {isAdmin} = require('./utils.js');
 
 let orders = {};
 let payer = null;
 
 function handleMac(client, msg, args) {
-    const burgers = ['classique', 'chicken', 'bbq', 'comte', 'basque', 'montagnard', 'veggie', 'fire'];
-    const boissons = ['coca', 'icetea', 'orangina', 'eau'];
+
+    var burgers = conf.burgers;
+    var boissons = conf.boissons;
+
     let embed_result = new Discord.RichEmbed()
         .setColor('#b93323')
         .setAuthor("Réponse automatique")
@@ -142,13 +146,23 @@ function handleMac(client, msg, args) {
                 paid
             };
             for(let i = 0; i < args.length; i++) {
-                if(burgers.includes(args[i])) {
-                    order.burger = args[i];
-                } else if(boissons.includes(args[i])) {
-                    order.boisson = args[i];
-                } else if(/frites?/.test(args[i])) {
+                let argFound = false;
+                burgers.map(burger => {
+                    if(args[i].toLowerCase().match(burger.toLowerCase().replace('é', '[ée]{1}')) {
+                         order.burger = burger;
+                         argFound = true;
+                     }
+                });
+                boissons.map(boisson => {
+                    if(args[i].toLowerCase().match(boisson.toLowerCase().replace('é', '[ée]{1}')) {
+                         order.boisson = boisson;
+                         argFound = true;
+                     }
+                });
+                if(/frites?/.test(args[i])) {
                     order.frite = true;
-                } else {
+                    argFound = true;
+                } else if(!argFound) {
                     unknownParams.push(args[i]);
                 }
             }
