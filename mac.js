@@ -148,13 +148,13 @@ function handleMac(client, msg, args) {
             for(let i = 0; i < args.length; i++) {
                 let argFound = false;
                 burgers.map(burger => {
-                    if(args[i].toLowerCase().match(burger.toLowerCase().replace('é', '[ée]{1}')) {
+                    if(args[i].toLowerCase().match(burger.toLowerCase().replace('é', '[ée]{1}'))) {
                          order.burger = burger;
                          argFound = true;
                      }
                 });
                 boissons.map(boisson => {
-                    if(args[i].toLowerCase().match(boisson.toLowerCase().replace('é', '[ée]{1}')) {
+                    if(args[i].toLowerCase().match(boisson.toLowerCase().replace('é', '[ée]{1}'))) {
                          order.boisson = boisson;
                          argFound = true;
                      }
