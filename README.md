@@ -34,3 +34,22 @@ You should consider using the logger.js file to add your log into the logging fi
 const logger = require('./logger.js');
 logger.writeLog("somelog");
 ```
+
+##Production
+1. Save you work on your branch
+2. Push your local branch on the configuration
+    `git push`
+3. Place yourself on the master
+    `git checkout master`
+4. Rebase the work you have done on your branch on the top of master
+    `git rebase <branch>`
+5. Resolve any **conflicts**
+6. **Increment** the version number in `package.json`
+7. Commit your work
+8. Push the master
+9. Create a tag, use the format 0.0.0v
+    `tag -a <version number> -m "<Description of the version>"`
+10. Share the tag
+    `git push origin <version number>`
+11. On the production server, get the changes by placing the server on the tag like so
+    `git checkout <version number>`

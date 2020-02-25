@@ -141,6 +141,7 @@ function room_list(msg){
                         rooms_current_day = [];
                     }
                     date_current_day = json[key].start.split('T')[0];
+                    console.log(json[key].salles);
                     if(json[key].salles.length>1){
                         var temp_salles = "";
                         for(salle in json[key].salles){
