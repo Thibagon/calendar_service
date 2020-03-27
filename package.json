@@ -1,6 +1,6 @@
 {
   "name": "MSI_Assistant",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "A bot to rule them all, or at least to give the classroom, and take the burger orders",
   "main": "bot.js",
   "scripts": {
