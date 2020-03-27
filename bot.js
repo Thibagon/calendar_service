@@ -4,6 +4,7 @@ const client = new Discord.Client();
 const auth = require('./auth.json');
 const conf = require('./conf.json');
 const mac = require('./mac.js');
+const timeLeft = require('./timeLeft.js');
 const logger = require('./logger.js');
 const days = ["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
 const talked_recently = new Set();
@@ -39,6 +40,9 @@ client.on('message', msg => {
             msg.reply('C\'est toi qui est sale !');
         if(command.substr(1) === 'mac') {
             mac.handleMac(client, msg, args);
+        }
+        if(command.substr(1) === 'time') {
+            timeLeft.timeLeft(client, msg, args);
         }
         if(command.substr(1) === "salle") {
             room_list(msg);
