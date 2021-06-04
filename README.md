@@ -28,14 +28,14 @@ embed_result.setDescription("```Markdown\n"
                         +description_embed
                         +"```");
 ```
-##Logging
+## Logging
 You should consider using the logger.js file to add your log into the logging file.
 ```javascript
 const logger = require('./logger.js');
 logger.writeLog("somelog");
 ```
 
-##Production
+## Production
 1. Save you work on your branch
 2. Push your local branch on the configuration
     `git push`
